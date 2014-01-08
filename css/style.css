@@ -1,0 +1,17 @@
+body {
+    background-color: #000000;
+    margin: 0;
+    cursor: default;
+    overflow: hidden;
+}
+
+
+.element {
+    border-radius: 50%;
+    width: 8px;
+    height: 8px;
+    text-align: center;
+    cursor: default;
+    background-color: white;
+    background: -webkit-radial-gradient(circle, rgba(255,255,255,1),rgba(255,255,255,0));*/
+}

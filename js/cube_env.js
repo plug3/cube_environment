@@ -9,8 +9,8 @@ window.onload = function() {
     var containerWidth = window.innerWidth;
     var containerHeight = window.innerHeight;
 
-    var fov = 70,
-    texture_placeholder,
+    
+    var texture_placeholder,
     isUserInteracting = false,
     onMouseDownMouseX = 0, onMouseDownMouseY = 0,
     lon = 0, onMouseDownLon = 0,
@@ -19,12 +19,23 @@ window.onload = function() {
 
     var touchX, touchY;
 
-
     var yaw, roll, pitch;
     var hlookat = 0;
     var vlookat = 0;
     var hasGyro = false;
 
+    // scene specific
+    var fov = 90,
+    camCull = 50;
+
+    var dampen = 0.95,
+    rangeH = 4,
+    rangeV = 0.5,
+    vx = Math.random() * rangeH - rangeH/2,
+    vy = Math.random() * rangeV - rangeV,
+    vz = Math.random() * rangeH - rangeH/2;
+
+    var pArray = [];
 
     init();
     initStats();
@@ -47,38 +58,38 @@ window.onload = function() {
     function init() 
     {
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera( 75, containerWidth / containerHeight, 1, 1000 );
+        camera = new THREE.PerspectiveCamera( fov, containerWidth / containerHeight, 1, 1000 );
 
         // create cube environment
 
         var sides = [
         {
-            url: 'textures/cube/church/posx.jpg',
+            url: 'textures/cube_env/posx.jpg',
             position: [ -512, 0, 0 ],
             rotation: [ 0, Math.PI / 2, 0 ]
         },
         {
-            url: 'textures/cube/church/negx.jpg',
+            url: 'textures/cube_env/negx.jpg',
             position: [ 512, 0, 0 ],
             rotation: [ 0, -Math.PI / 2, 0 ]
         },
         {
-            url: 'textures/cube/church/posy.jpg',
+            url: 'textures/cube_env/posy.jpg',
             position: [ 0,  512, 0 ],
             rotation: [ Math.PI / 2, 0, Math.PI ]
         },
         {
-            url: 'textures/cube/church/negy.jpg',
+            url: 'textures/cube_env/negy.jpg',
             position: [ 0, -512, 0 ],
             rotation: [ - Math.PI / 2, 0, Math.PI ]
         },
         {
-            url: 'textures/cube/church/posz.jpg',
+            url: 'textures/cube_env/posz.jpg',
             position: [ 0, 0,  512 ],
             rotation: [ 0, Math.PI, 0 ]
         },
         {
-            url: 'textures/cube/church/negz.jpg',
+            url: 'textures/cube_env/negz.jpg',
             position: [ 0, 0, -512 ],
             rotation: [ 0, 0, 0 ]
         }
@@ -103,7 +114,7 @@ window.onload = function() {
         // create particles
 
         // create the particle variables
-        var particleCount = 100;
+        var particleCount = 500;
         
 
         // now create the individual particles
@@ -115,20 +126,36 @@ window.onload = function() {
             //element.style.backgroundColor = 'rgba(0,127,127,' + ( Math.random() * 0.5 + 0.25 ) + ')';
 
             // create a particle with random
-            // position values, -250 -> 250
+            // position values, -500 -> 500
+
+            var px = Math.random() * 1000 - 500;
+            var py = Math.random() * 1000 - 500;
+            var pz = Math.random() * 1000 - 500;
+
+            // test if far enough from camera
+
+            if ((px*px + py*py + pz*pz) < (camCull*camCull*camCull)) {
+                element.className = 'elementClose';
+            }
 
             var object = new THREE.CSS3DObject( element );
-            object.position.x = Math.random() * 500 - 250;
-            object.position.y = Math.random() * 500 - 250;
-            object.position.z = Math.random() * 500 - 250;
+            object.position.x = px;
+            object.position.y = py;
+            object.position.z = pz;
+
+            object.vx = Math.random() * rangeH - rangeH/2,
+            object.vy = Math.random() * rangeV - rangeV,
+            object.vz = Math.random() * rangeH - rangeH/2;
 
             object.lookAt( camera.position );
-            
-            // add it to the scene
-            scene.add( object );
-        }
 
-        
+                // add it to the scene
+                scene.add( object );
+
+                // add it to the array
+                pArray.push(object);
+            }
+
 
         // test for compass or mouse nav
 
@@ -310,6 +337,8 @@ window.onload = function() {
     function animate() {
 
         requestAnimationFrame( animate );
+
+        // update camera
         
         //lon +=  0.1;
         lat = Math.max( - 85, Math.min( 85, lat ) );
@@ -324,17 +353,36 @@ window.onload = function() {
             theta = THREE.Math.degToRad( lon );
         }
         
-        
-
         target.x = Math.sin( phi ) * Math.cos( theta );
         target.y = Math.cos( phi );
         target.z = Math.sin( phi ) * Math.sin( theta );
 
         
-        /*
-        target.x = THREE.Math.degToRad(hlookat);
-        target.y = THREE.Math.degToRad(vlookat);
-        */
+        // update particles
+
+        for (i = 0; i < pArray.length; i++) {
+            var obj = pArray[i];
+
+            obj.vx += Math.random() * rangeH - rangeH/2;
+            obj.vy += Math.random() * rangeV - rangeV;
+            obj.vz += Math.random() * rangeH - rangeH/2;
+
+            obj.position.x += obj.vx;
+            obj.position.y += obj.vy;
+            obj.position.z += obj.vz;
+
+            obj.lookAt( camera.position );
+
+            if (obj.position.y < -512) {
+                obj.position.y = 512;
+            }
+
+            obj.vx *= dampen;
+            obj.vy *= dampen;
+            obj.vz *= dampen;
+
+        }
+
         
         camera.lookAt( target );
         

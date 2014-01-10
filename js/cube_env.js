@@ -44,7 +44,7 @@ window.onload = function() {
     function initStats() 
     {
         stats = new Stats();
-        stats.setMode(1);
+        stats.setMode(2);
 
         // Align top left
         stats.domElement.style.position = 'absolute';
@@ -64,32 +64,32 @@ window.onload = function() {
 
         var sides = [
         {
-            url: 'textures/cube_env/posx.jpg',
+            url: 'textures/cube_env/snow/posx.jpg',
             position: [ -512, 0, 0 ],
             rotation: [ 0, Math.PI / 2, 0 ]
         },
         {
-            url: 'textures/cube_env/negx.jpg',
+            url: 'textures/cube_env/snow/negx.jpg',
             position: [ 512, 0, 0 ],
             rotation: [ 0, -Math.PI / 2, 0 ]
         },
         {
-            url: 'textures/cube_env/posy.jpg',
+            url: 'textures/cube_env/snow/posy.jpg',
             position: [ 0,  512, 0 ],
             rotation: [ Math.PI / 2, 0, Math.PI ]
         },
         {
-            url: 'textures/cube_env/negy.jpg',
+            url: 'textures/cube_env/snow/negy.jpg',
             position: [ 0, -512, 0 ],
             rotation: [ - Math.PI / 2, 0, Math.PI ]
         },
         {
-            url: 'textures/cube_env/posz.jpg',
+            url: 'textures/cube_env/snow/posz.jpg',
             position: [ 0, 0,  512 ],
             rotation: [ 0, Math.PI, 0 ]
         },
         {
-            url: 'textures/cube_env/negz.jpg',
+            url: 'textures/cube_env/snow/negz.jpg',
             position: [ 0, 0, -512 ],
             rotation: [ 0, 0, 0 ]
         }
@@ -114,7 +114,7 @@ window.onload = function() {
         // create particles
 
         // create the particle variables
-        var particleCount = 500;
+        var particleCount = 750;
         
 
         // now create the individual particles
@@ -131,12 +131,12 @@ window.onload = function() {
             var px = Math.random() * 1000 - 500;
             var py = Math.random() * 1000 - 500;
             var pz = Math.random() * 1000 - 500;
-
+/*
             // test if far enough from camera
 
             if ((px*px + py*py + pz*pz) < (camCull*camCull*camCull)) {
-                element.className = 'elementClose';
-            }
+
+            }*/
 
             var object = new THREE.CSS3DObject( element );
             object.position.x = px;
@@ -159,14 +159,21 @@ window.onload = function() {
 
         // test for compass or mouse nav
 
-        if (window.DeviceOrientationEvent) {
-            console.log("startGyroNav");
-            window.addEventListener('deviceorientation', compassTest);
-            hasGyro = true;
-        } else {
-            console.log("startMouseNav");
-            startMouseNav();
-        }
+        // Detect the type of device (iOS or desktop).
+        if (navigator.userAgent.match(/(iPad|iPhone|iPod)/g))
+        {
+              // iOS device.
+              console.log("startGyroNav");
+              window.addEventListener('deviceorientation', compassTest);
+              hasGyro = true;
+          }
+          else
+          {
+              // Desktop.
+              console.log("startMouseNav");
+              startMouseNav();
+          }
+
 
 		// Set up renderer, scene and camera
 		renderer = new THREE.CSS3DRenderer();
@@ -380,6 +387,11 @@ window.onload = function() {
             obj.vx *= dampen;
             obj.vy *= dampen;
             obj.vz *= dampen;
+
+            //distance from camera
+            //var dis = obj.position.x*obj.position.x + obj.position.y*obj.position.y + obj.position.y*obj.position.y;
+
+            //console.log("distance: " + dis)
 
         }
 

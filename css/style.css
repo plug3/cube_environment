@@ -7,21 +7,9 @@ body {
 
 
 .element {
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    cursor: default;
-
-    background: -webkit-radial-gradient(circle, rgba(200,200,255,1),rgba(200,200,255,0));
+    width: 24px;
+    height: 24px;
+    background: url("../textures/snowflake_24.png");
 }
 
-.elementClose {
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    cursor: default;
 
-    background: -webkit-radial-gradient(circle, rgba(200,200,255,0.5),rgba(200,200,255,0));
-}
